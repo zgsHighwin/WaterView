@@ -59,9 +59,9 @@ public class WaterView extends View {
     }
 
     private void radiusAnimation(Water w, long time, TimeUnit unit) {
-        PropertyValuesHolder radius = PropertyValuesHolder.ofFloat("radius", getFloat(PaintColorType.TYPE_RADIUS));
-        PropertyValuesHolder alpha = PropertyValuesHolder.ofFloat("alpha", getFloat(PaintColorType.TYPE_ALPHA));
-        PropertyValuesHolder strokeWidth = PropertyValuesHolder.ofFloat("strokeWdith", getFloat(PaintColorType.TYPE_STROKE_WIDTH));
+        PropertyValuesHolder radius = PropertyValuesHolder.ofFloat("radius", getFloat(PaintColorType.paintType.TYPE_RADIUS));
+        PropertyValuesHolder alpha = PropertyValuesHolder.ofFloat("alpha", getFloat(PaintColorType.paintType.TYPE_ALPHA));
+        PropertyValuesHolder strokeWidth = PropertyValuesHolder.ofFloat("strokeWdith", getFloat(PaintColorType.paintType.TYPE_STROKE_WIDTH));
         ValueAnimator valueAnimator = ValueAnimator.ofPropertyValuesHolder(radius, alpha, strokeWidth).setDuration(getTime(time, unit));
         valueAnimator.addUpdateListener(new MyAnimatorListener(w));
         valueAnimator.start();
@@ -107,7 +107,7 @@ public class WaterView extends View {
 
     private float[] getFloat(@PaintColorType.paintType String type) {
         float[] floats = new float[destiny];
-        if (type.equals(PaintColorType.TYPE_RADIUS)) {
+        if (type.equals(PaintColorType.paintType.TYPE_RADIUS)) {
             for (int i = 0; i < destiny; i++) {
                 if (fixed) {
                     floats[i] = (float) (baseRadius * (i + increaseRadius));
@@ -115,12 +115,12 @@ public class WaterView extends View {
                     floats[i] = fixedSize;
                 }
             }
-        } else if (type.equals(PaintColorType.TYPE_ALPHA)) {
+        } else if (type.equals(PaintColorType.paintType.TYPE_ALPHA)) {
             for (int i = 0; i < destiny; i++) {
                 floats[i] = (float) (255 - (i + 1) * (255 / destiny));
             }
             floats[destiny - 1] = 0;
-        } else if (type.equals(PaintColorType.TYPE_STROKE_WIDTH)) {
+        } else if (type.equals(PaintColorType.paintType.TYPE_STROKE_WIDTH)) {
             for (int i = 0; i < destiny; i++) {
                 floats[i] = (float) (baseStrokeWidth + (1 + i) * increaseStrokeWidth);
             }
