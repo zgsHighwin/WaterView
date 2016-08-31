@@ -4,6 +4,7 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -15,11 +16,26 @@ import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
+
+/**
+ * User: zgsHighwin
+ * Email: 799174081@qq.com Or 799174081@gmail.com
+ * Description:
+ * Create-Time: 2016/8/31 11:18
+ */
 public class WaterView extends View {
+
     private float mActionDownX;
     private float mActionDownY;
     private List<Water> mWater;
 
+    private float increaseStrokeWidth = 0.5f;
+    private float baseStrokeWidth = 5;
+    private float increaseRadius = 10;
+    private float baseRadius = 2;
+    private int destiny = 30;
+    private boolean fixed = true;
+    private float fixedSize = 20;
 
     public WaterView(Context context) {
         this(context, null);
@@ -59,9 +75,9 @@ public class WaterView extends View {
     }
 
     private void radiusAnimation(Water w, long time, TimeUnit unit) {
-        PropertyValuesHolder radius = PropertyValuesHolder.ofFloat("radius", getFloat(PaintColorType.paintType.TYPE_RADIUS));
-        PropertyValuesHolder alpha = PropertyValuesHolder.ofFloat("alpha", getFloat(PaintColorType.paintType.TYPE_ALPHA));
-        PropertyValuesHolder strokeWidth = PropertyValuesHolder.ofFloat("strokeWdith", getFloat(PaintColorType.paintType.TYPE_STROKE_WIDTH));
+        PropertyValuesHolder radius = PropertyValuesHolder.ofFloat("radius", getFloat(PaintType.PaintTypeMode.TYPE_RADIUS));
+        PropertyValuesHolder alpha = PropertyValuesHolder.ofFloat("alpha", getFloat(PaintType.PaintTypeMode.TYPE_ALPHA));
+        PropertyValuesHolder strokeWidth = PropertyValuesHolder.ofFloat("strokeWdith", getFloat(PaintType.PaintTypeMode.TYPE_STROKE_WIDTH));
         ValueAnimator valueAnimator = ValueAnimator.ofPropertyValuesHolder(radius, alpha, strokeWidth).setDuration(getTime(time, unit));
         valueAnimator.addUpdateListener(new MyAnimatorListener(w));
         valueAnimator.start();
@@ -93,21 +109,14 @@ public class WaterView extends View {
             w.getP().setAlpha((int) aniAlpha);
             w.setStrokeWidth(aniStrokeWdith);
             w.setAlpha((int) aniAlpha);
-            invalidate();
+            postInvalidate();
         }
     }
 
-    private float increaseStrokeWidth = 1;
-    private float baseStrokeWidth = 10;
-    private float increaseRadius = 10;
-    private float baseRadius = 5;
-    private int destiny = 20;
-    private boolean fixed = true;
-    private float fixedSize = 20;
 
-    private float[] getFloat(@PaintColorType.paintType String type) {
+    private float[] getFloat(@PaintType.PaintTypeMode String type) {
         float[] floats = new float[destiny];
-        if (type.equals(PaintColorType.paintType.TYPE_RADIUS)) {
+        if (type.equals(PaintType.PaintTypeMode.TYPE_RADIUS)) {
             for (int i = 0; i < destiny; i++) {
                 if (fixed) {
                     floats[i] = (float) (baseRadius * (i + increaseRadius));
@@ -115,12 +124,12 @@ public class WaterView extends View {
                     floats[i] = fixedSize;
                 }
             }
-        } else if (type.equals(PaintColorType.paintType.TYPE_ALPHA)) {
+        } else if (type.equals(PaintType.PaintTypeMode.TYPE_ALPHA)) {
             for (int i = 0; i < destiny; i++) {
                 floats[i] = (float) (255 - (i + 1) * (255 / destiny));
             }
             floats[destiny - 1] = 0;
-        } else if (type.equals(PaintColorType.paintType.TYPE_STROKE_WIDTH)) {
+        } else if (type.equals(PaintType.PaintTypeMode.TYPE_STROKE_WIDTH)) {
             for (int i = 0; i < destiny; i++) {
                 floats[i] = (float) (baseStrokeWidth + (1 + i) * increaseStrokeWidth);
             }
@@ -145,7 +154,7 @@ public class WaterView extends View {
                     float mActionDownX = event.getX(i);
                     float mActionDownY = event.getY(i);
                     mWater.add(new Water(0, false, getPaint(getRadomColor()), 0, 0, mActionDownX, mActionDownY));
-                    invalidate();
+                    postInvalidate();
                 }
                 break;
         }
@@ -154,11 +163,11 @@ public class WaterView extends View {
         /**
          * 单点触控
          */
-    /*    int action = event.getAction();
+  /* int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-           *//*     invalidate();
-                break;*//*
+           *//**//**//**//*     invalidate();
+                break;*//**//**//**//*
             case MotionEvent.ACTION_MOVE:
                 mActionDownX = event.getX();
                 mActionDownY = event.getY();
@@ -171,19 +180,20 @@ public class WaterView extends View {
         return true;
     }
 
-    @PaintColorType.paintColor
+    @PaintType.PaintColor
     private int getRadomColor() {
-        int[] colors = {PaintColorType.COLOR_RED, PaintColorType.COLOR_GREEN, PaintColorType.COLOR_YELLOW, PaintColorType.COLOR_BALCK, PaintColorType.COLOR_BLUE};
+        int[] colors = {highwin.zgs.waterview.PaintType.PaintColor.COLOR_RED, highwin.zgs.waterview.PaintType.PaintColor.COLOR_GREEN, highwin.zgs.waterview.PaintType.PaintColor.COLOR_YELLOW, highwin.zgs.waterview.PaintType.PaintColor.COLOR_BALCK, highwin.zgs.waterview.PaintType.PaintColor.COLOR_BLUE};
         int i = new Random().nextInt(colors.length);
         return colors[i];
     }
 
-    private Paint getPaint(@PaintColorType.paintColor int color) {
+    private Paint getPaint(@PaintType.PaintColor int color) {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStyle(Paint.Style.STROKE);
         paint.setDither(true);
         paint.setColor(color);
+        paint.setPathEffect(new DashPathEffect(new float[]{100, 100}, 0));
         return paint;
     }
 
@@ -192,82 +202,4 @@ public class WaterView extends View {
         return 0;
     }
 
-    class Water {
-        private float x;   //y坐标
-        private float y;    //x坐标
-        private Paint p;      //画笔
-        private boolean isAnimation;  //是否设置动画监听
-        private float radius;       //半径
-        private float strokeWidth;     //画笔宽度
-        private int alpha;           //设置alpha
-
-        public Water() {
-        }
-
-        public Water(int alpha, boolean isAnimation, Paint p, float radius, float strokeWidth, float x, float y) {
-            this.alpha = alpha;
-            this.isAnimation = isAnimation;
-            this.p = p;
-            this.radius = radius;
-            this.strokeWidth = strokeWidth;
-            this.x = x;
-            this.y = y;
-        }
-
-        public int getAlpha() {
-            return alpha;
-        }
-
-        public void setAlpha(int alpha) {
-            this.alpha = alpha;
-        }
-
-        public boolean isAnimation() {
-            return isAnimation;
-        }
-
-        public void setAnimation(boolean animation) {
-            isAnimation = animation;
-        }
-
-        public Paint getP() {
-            return p;
-        }
-
-        public void setP(Paint p) {
-            this.p = p;
-        }
-
-        public float getRadius() {
-            return radius;
-        }
-
-        public void setRadius(float radius) {
-            this.radius = radius;
-        }
-
-        public float getStrokeWidth() {
-            return strokeWidth;
-        }
-
-        public void setStrokeWidth(float strokeWidth) {
-            this.strokeWidth = strokeWidth;
-        }
-
-        public float getX() {
-            return x;
-        }
-
-        public void setX(float x) {
-            this.x = x;
-        }
-
-        public float getY() {
-            return y;
-        }
-
-        public void setY(float y) {
-            this.y = y;
-        }
-    }
 }
